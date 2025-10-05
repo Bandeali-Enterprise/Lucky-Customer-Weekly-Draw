@@ -4,8 +4,8 @@ const bodyParser = require('body-parser');
 const path = require('path');
 
 const ADMINS = [
-  { id: "ADMIN_PASS", password: "admin123" },
-  { id: "BANDEALI_ENTERPRISES", password: "Bandealia123" }
+  { id: "bandeali", password: "Bandeali@123" },
+  { id: "boss", password: "admin123" }
 ];
 
 const app = express();
@@ -23,7 +23,6 @@ db.serialize(() => {
   )`);
 });
 
-// MONDAY auto-delete logic: Check on every request, deletes if it's new Monday
 let lastDeletedMonday = "";
 function autoDeleteLeadsIfMonday(req, res, next) {
   const today = new Date();
@@ -34,7 +33,7 @@ function autoDeleteLeadsIfMonday(req, res, next) {
       diff = d.getDate() - day + (day == 0 ? -6 : 1);
     return new Date(d.setDate(diff)).toISOString().slice(0, 10);
   }
-  if(day === 1) { // Monday = 1
+  if(day === 1) { // Monday
     const mondayStr = getMonday(today);
     if (lastDeletedMonday !== mondayStr) {
       db.run('DELETE FROM leads', () => {
@@ -48,9 +47,7 @@ function autoDeleteLeadsIfMonday(req, res, next) {
   next();
 }
 
-// Global middleware: check every incoming request
 app.use(autoDeleteLeadsIfMonday);
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
