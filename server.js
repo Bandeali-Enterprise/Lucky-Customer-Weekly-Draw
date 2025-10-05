@@ -3,7 +3,10 @@ const sqlite3 = require('sqlite3').verbose();
 const bodyParser = require('body-parser');
 const path = require('path');
 
-const ADMIN_PASSWORD = process.env.ADMIN_PASS || 'admin123';
+const ADMINS = [
+  { id: "bandeali", password: "Bandeali@123" },
+  { id: "boss", password: "admin123" }
+];
 
 const app = express();
 const db = new sqlite3.Database('./data.db');
@@ -11,7 +14,7 @@ const db = new sqlite3.Database('./data.db');
 db.serialize(() => {
   db.run(`CREATE TABLE IF NOT EXISTS leads (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT, phone TEXT, date TEXT
+    name TEXT, phone TEXT, userid TEXT, date TEXT
   )`);
   db.run(`CREATE TABLE IF NOT EXISTS winners (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -31,12 +34,12 @@ app.get('/', (req,res) => res.sendFile(path.join(__dirname,'index.html')));
 
 // APIs
 app.post('/api/lead', (req, res) => {
-  const { name, phone } = req.body;
-  if (!name || !phone) return res.status(400).send('Name and Phone required');
+  const { name, phone, userid } = req.body;
+  if (!name || !phone || !userid) return res.status(400).send('All fields required');
   const date = new Date().toISOString();
   db.run(
-    'INSERT INTO leads (name, phone, date) VALUES (?,?,?)',
-    [name, phone, date],
+    'INSERT INTO leads (name, phone, userid, date) VALUES (?,?,?,?)',
+    [name, phone, userid, date],
     function (err) {
       if (err) return res.status(500).send('DB Error');
       res.json({ success: true });
@@ -44,9 +47,8 @@ app.post('/api/lead', (req, res) => {
   );
 });
 
-// Only show winner of this week
+// Winner of current week only
 app.get('/api/winner', (req, res) => {
-  // Get ISO week string
   function getMonday(d) {
     d = new Date(d);
     let day = d.getDay(),
@@ -63,9 +65,10 @@ app.get('/api/winner', (req, res) => {
 });
 
 app.post('/api/admin/login', (req, res) => {
-  const { password } = req.body;
-  if (password === ADMIN_PASSWORD) return res.json({ success: true });
-  res.status(403).json({ error: 'Wrong password' });
+  const { adminid, password } = req.body;
+  const found = ADMINS.find(x => x.id === adminid && x.password === password);
+  if (found) return res.json({ success: true });
+  res.status(403).json({ error: 'Wrong ID or Password' });
 });
 
 app.get('/api/admin/leads', (req, res) => {
@@ -75,7 +78,6 @@ app.get('/api/admin/leads', (req, res) => {
 });
 
 app.post('/api/admin/spin', (req, res) => {
-  // Only allow one winner per week
   function getMonday(d) {
     d = new Date(d);
     let day = d.getDay(),
@@ -86,7 +88,6 @@ app.post('/api/admin/spin', (req, res) => {
   const weekDate = getMonday(now);
   db.get('SELECT * FROM winners WHERE week_date=?', [weekDate], (err, exists) => {
     if (exists) {
-      // Winner already picked
       db.get(`SELECT l.name, l.phone FROM winners w JOIN leads l ON w.lead_id = l.id WHERE w.week_date=?`, [weekDate], (err, winner) => {
         res.json({ name: winner.name, phone: winner.phone, already: true });
       });
