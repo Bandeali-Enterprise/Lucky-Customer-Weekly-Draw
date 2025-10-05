@@ -19,7 +19,7 @@
       <button class="glow-pink" onclick="spinWinner()">🎰 Spin Winner</button>
       <div id="spinMsg"></div>
       <h3>Leads</h3>
-      <table id="leadsTbl"><tr><th>Name</th><th>Phone</th><th>ID</th><th>Date</th></tr></table>
+      <table id="leadsTbl"><tr><th>Name</th><th>Phone</th><th>Date</th></tr></table>
     </div>
   </div>
   <script>
@@ -45,8 +45,8 @@
       fetch('/api/admin/leads')
       .then(r=>r.json()).then(rows=>{
         let tbl = document.getElementById('leadsTbl');
-        tbl.innerHTML = '<tr><th>Name</th><th>Phone</th><th>ID</th><th>Date</th></tr>'+
-          rows.map(x=>`<tr><td>${x.name}</td><td>${x.phone}</td><td>${x.userid}</td><td>${x.date}</td></tr>`).join('');
+        tbl.innerHTML = '<tr><th>Name</th><th>Phone</th><th>Date</th></tr>'+
+          rows.map(x=>`<tr><td>${x.name}</td><td>${x.phone}</td><td>${x.date}</td></tr>`).join('');
       });
     }
     function spinWinner() {
@@ -54,7 +54,7 @@
       .then(r=>r.json()).then(win=>{
         document.getElementById('spinMsg').innerHTML = win.error
           ? win.error
-          : `<div class="winner-card winner-anim"><span>🏆</span><br/><b>${win.name}</b><br/>${win.phone}${win.already ? '<br/><small>(Already Picked)</small>' : ''}</div>`;
+          : `<div class="winner-card winner-anim"><span>🏆</span><br/><b>${win.name}</b><br/>${win.phone}</div>`;
       });
     }
   </script>
