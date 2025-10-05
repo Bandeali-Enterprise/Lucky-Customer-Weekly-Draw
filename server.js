@@ -4,8 +4,8 @@ const bodyParser = require('body-parser');
 const path = require('path');
 
 const ADMINS = [
-  { id: "bandeali", password: "Bandeali@123" },
-  { id: "boss", password: "admin123" }
+  { id: "ADMIN_PASS", password: "admin123" },
+  { id: "BANDEALI_ENTERPRISES", password: "Bandealia123" }
 ];
 
 const app = express();
@@ -110,3 +110,4 @@ app.post('/api/admin/spin', (req, res) => {
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log('Lucky Draw server running on ' + port));
+
