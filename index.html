@@ -13,10 +13,10 @@
     <form id="entryForm" autocomplete="off">
       <input name="name" type="text" placeholder="Your Name" required />
       <input name="phone" type="tel" placeholder="Mobile Number" required />
-      <input name="userid" type="text" placeholder="Your ID" required />
       <button class="glow-pink" type="submit">Enter This Week</button>
       <div id="custMsg"></div>
     </form>
+    <div id="popupMsg" class="popup-msg"></div>
     <div class="winner-section">
       <h2 class="glow-pink">This Week's Lucky Customer</h2>
       <div id="winnerCard" class="winner-card hide"></div>
@@ -28,11 +28,17 @@
       let fd = new FormData(e.target);
       let data = {};
       fd.forEach((v, k) => data[k] = v);
-      let msgElem = document.getElementById('custMsg');
+      let popup=document.getElementById('popupMsg');
       let res = await fetch('/api/lead', {
         method:'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data)
       });
-      msgElem.textContent = res.ok ? "You're In! Good luck 🎉" : "Error submitting!";
+      if(res.ok) {
+        popup.innerHTML = '<div class="pop-success">🎉 Entry successful! Good luck for this week\'s draw!</div>';
+      } else {
+        popup.innerHTML = '<div class="pop-fail">✖️ Entry failed. Try again.</div>';
+      }
+      popup.style.display='block';
+      setTimeout(()=>popup.style.display='none', 2500);
       e.target.reset();
       getWinner();
     };
