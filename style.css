@@ -19,8 +19,6 @@ body {
 h1, h2, h3 { font-family: 'Orbitron', sans-serif; }
 .glow-blue { color: #07d9ff; text-shadow: 0 0 12px #07d9ff66, 0 0 22px #07d9ff55;}
 .glow-pink { color: #fc1e8a; text-shadow: 0 0 14px #fc1e8a88, 0 0 24px #fc1e8a55;}
-
-/* INPUT and BUTTON ALLINED */
 input, button {
   width: 100%;
   padding: 1.1em 0;
