@@ -62,11 +62,10 @@ app.post('/api/lead', (req, res) => {
   const { name, phone } = req.body;
   if (!name || !phone) return res.status(400).send('All fields required');
 
-  // Only allow one entry per mobile this week (Monday-Sunday)
   function getMonday(d) {
     d = new Date(d);
     let day = d.getDay(),
-      diff = d.getDate() - day + (day == 0 ? -6 : 1);
+      diff = d.getDate() - day + (day === 0 ? -6 : 1);
     return new Date(d.setDate(diff)).toISOString().slice(0, 10);
   }
   const mondayStr = getMonday(new Date());
