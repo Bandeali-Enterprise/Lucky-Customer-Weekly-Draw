@@ -61,15 +61,30 @@ app.get('/', (req,res) => res.sendFile(path.join(__dirname,'index.html')));
 app.post('/api/lead', (req, res) => {
   const { name, phone } = req.body;
   if (!name || !phone) return res.status(400).send('All fields required');
-  const date = new Date().toISOString();
-  db.run(
-    'INSERT INTO leads (name, phone, date) VALUES (?,?,?)',
-    [name, phone, date],
-    function (err) {
-      if (err) return res.status(500).send('DB Error');
-      res.json({ success: true });
+
+  // Only allow one entry per mobile this week (Monday-Sunday)
+  function getMonday(d) {
+    d = new Date(d);
+    let day = d.getDay(),
+      diff = d.getDate() - day + (day == 0 ? -6 : 1);
+    return new Date(d.setDate(diff)).toISOString().slice(0, 10);
+  }
+  const mondayStr = getMonday(new Date());
+
+  db.get('SELECT * FROM leads WHERE phone = ? AND date >= ?', [phone, mondayStr], (err, row) => {
+    if (row) {
+      return res.status(409).json({ already: true });
     }
-  );
+    const date = new Date().toISOString();
+    db.run(
+      'INSERT INTO leads (name, phone, date) VALUES (?,?,?)',
+      [name, phone, date],
+      function (err) {
+        if (err) return res.status(500).send('DB Error');
+        res.json({ success: true });
+      }
+    );
+  });
 });
 
 app.get('/api/winner', (req, res) => {
