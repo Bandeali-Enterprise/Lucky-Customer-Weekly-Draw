@@ -3,7 +3,7 @@ body {
   color: #fff;
   font-family: 'Poppins', Arial, sans-serif;
   min-height: 100vh;
-  margin:0;
+  margin: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -16,13 +16,24 @@ body {
   max-width: 400px;
   width: 100%;
 }
-h1, h2, h3 { font-family: 'Orbitron', sans-serif; }
-.glow-blue { color: #07d9ff; text-shadow: 0 0 12px #07d9ff66, 0 0 22px #07d9ff55;}
-.glow-pink { color: #fc1e8a; text-shadow: 0 0 14px #fc1e8a88, 0 0 24px #fc1e8a55;}
-input, button {
+h1,
+h2,
+h3 {
+  font-family: 'Orbitron', sans-serif;
+}
+.glow-blue {
+  color: #07d9ff;
+  text-shadow: 0 0 12px #07d9ff66, 0 0 22px #07d9ff55;
+}
+.glow-pink {
+  color: #fc1e8a;
+  text-shadow: 0 0 14px #fc1e8a88, 0 0 24px #fc1e8a55;
+}
+input,
+button {
   width: 100%;
   padding: 1.1em 0;
-  margin: .5rem 0 .8rem 0;
+  margin: 0.5rem 0 0.8rem 0;
   border-radius: 18px;
   border: none;
   outline: none;
@@ -49,7 +60,7 @@ button {
   letter-spacing: 1px;
   padding: 1.1em 0;
   width: 100%;
-  margin: .5rem 0 .8rem 0;
+  margin: 0.5rem 0 0.8rem 0;
   border: none;
   border-radius: 18px;
   font-size: 1.11em;
@@ -57,9 +68,8 @@ button {
   color: #fff !important;
   box-shadow: 0 0 22px #fc1e8a66, 0 0 32px #07d9ff44;
   text-shadow: 0 2px 18px #ff4dd2ac, 0 1px 8px #07d9ff77;
-  transition:
-    transform .14s cubic-bezier(.4,2,.6,.6),
-    background .5s, box-shadow .32s;
+  transition: transform 0.14s cubic-bezier(0.4, 2, 0.6, 0.6),
+    background 0.5s, box-shadow 0.32s;
   position: relative;
   overflow: hidden;
 }
@@ -70,7 +80,11 @@ button:before {
   top: 0;
   width: 30%;
   height: 100%;
-  background: linear-gradient(120deg,rgba(255,255,255,0.38) 0%,rgba(255,255,255,0.08) 100%);
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0.38) 0%,
+    rgba(255, 255, 255, 0.08) 100%
+  );
   filter: blur(2px);
   transform: skewX(-22deg);
   opacity: 0.6;
@@ -92,25 +106,46 @@ button:active {
   margin-top: 1.2rem;
   padding: 1.1em;
   background: #181848bb;
-  border-radius:12px;
+  border-radius: 12px;
   border: 2.5px solid #07d9ff;
-  color:#fff;
+  color: #fff;
   font-size: 1.1rem;
-  box-shadow: 0 0 50px #fc1e8a33,0 0 28px #07d9ff55;
+  box-shadow: 0 0 50px #fc1e8a33, 0 0 28px #07d9ff55;
   animation: flicker 1.2s infinite alternate;
   text-align: center;
 }
-.winner-anim span { font-size: 2.2em; display: block; margin-bottom: .2em; }
-.hide{ display:none; }
-@keyframes flicker {
-  0% { box-shadow:0 0 34px #fc1e8a55,0 0 18px #07d9ff55;}
-  100% { box-shadow:0 0 57px #fc1e8a88,0 0 32px #07d9ff77;}
+.winner-anim span {
+  font-size: 2.2em;
+  display: block;
+  margin-bottom: 0.2em;
 }
-@media (max-width:500px) {
-  .container{ padding:0.7rem; max-width:99vw; font-size: 0.97em;}
-  input, button { font-size: 1em; }
-  h1 { font-size: 1.35em; }
-  .winner-card{ font-size:.92rem;}
+.hide {
+  display: none;
+}
+@keyframes flicker {
+  0% {
+    box-shadow: 0 0 34px #fc1e8a55, 0 0 18px #07d9ff55;
+  }
+  100% {
+    box-shadow: 0 0 57px #fc1e8a88, 0 0 32px #07d9ff77;
+  }
+}
+@media (max-width: 500px) {
+  .container {
+    padding: 0.7rem;
+    max-width: 99vw;
+    font-size: 0.97em;
+  }
+  input,
+  button {
+    font-size: 1em;
+  }
+  h1 {
+    font-size: 1.35em;
+  }
+  .winner-card {
+    font-size: 0.92rem;
+  }
 }
 .popup-msg {
   position: fixed;
@@ -119,27 +154,40 @@ button:active {
   transform: translate(-50%, 0);
   z-index: 9999;
   min-width: 210px;
-  max-width:80vw;
+  max-width: 80vw;
   display: none;
   text-align: center;
 }
-.pop-success, .pop-fail {
-  background:#222848f9;
+.pop-success,
+.pop-fail {
+  background: #222848f9;
   border-radius: 14px;
-  color:#fff;
-  padding:1.2em 1.1em 1.05em 1.1em;
-  font-family: 'Orbitron',sans-serif;
-  font-size:1.12em;
-  font-weight:700;
-  box-shadow:0 0 18px #07d9ff66,0 0 22px #fc1e8a66;
+  color: #fff;
+  padding: 1.2em 1.1em 1.05em 1.1em;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.12em;
+  font-weight: 700;
+  box-shadow: 0 0 18px #07d9ff66, 0 0 22px #fc1e8a66;
   animation: popUp 0.4s;
 }
-.pop-success{ border:2.5px solid #00ffad; text-shadow: 0 0 8px #00e7ce; }
-.pop-fail{ border:2.5px solid #fc1e8a; text-shadow: 0 0 12px #fc1e8a; }
+.pop-success {
+  border: 2.5px solid #00ffad;
+  text-shadow: 0 0 8px #00e7ce;
+}
+.pop-fail {
+  border: 2.5px solid #fc1e8a;
+  text-shadow: 0 0 12px #fc1e8a;
+}
 @keyframes popUp {
-  0%{ transform:scale(0.7);}
-  80%{transform:scale(1.09);}
-  100%{transform:scale(1);}
+  0% {
+    transform: scale(0.7);
+  }
+  80% {
+    transform: scale(1.09);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 .fullscreen-popup {
   position: fixed;
