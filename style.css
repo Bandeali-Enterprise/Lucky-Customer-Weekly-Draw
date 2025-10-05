@@ -19,15 +19,30 @@ body {
 h1, h2, h3 { font-family: 'Orbitron', sans-serif; }
 .glow-blue { color: #07d9ff; text-shadow: 0 0 12px #07d9ff66, 0 0 22px #07d9ff55;}
 .glow-pink { color: #fc1e8a; text-shadow: 0 0 14px #fc1e8a88, 0 0 24px #fc1e8a55;}
+
+/* INPUT and BUTTON ALLINED */
 input, button {
-  padding: .85rem 1rem;
-  font-size: 1rem;
-  border-radius: 12px;
+  width: 100%;
+  padding: 1.1em 0;
+  margin: .5rem 0 .8rem 0;
+  border-radius: 18px;
   border: none;
   outline: none;
   background: #232349;
-  margin: .5rem 0;
   color: #fff !important;
+  font-size: 1.11em;
+  font-family: 'Poppins', Arial, sans-serif;
+  box-sizing: border-box;
+  box-shadow: 0 0 12px #07d9ff22;
+  transition: box-shadow 0.18s;
+}
+input::placeholder {
+  color: #b7b7c8;
+  font-size: 1.04em;
+  opacity: 1;
+}
+input:focus {
+  box-shadow: 0 0 28px #07d9ff99, 0 0 8px #fc1e8a55;
 }
 button {
   cursor: pointer;
@@ -44,7 +59,7 @@ button {
   color: #fff !important;
   box-shadow: 0 0 22px #fc1e8a66, 0 0 32px #07d9ff44;
   text-shadow: 0 2px 18px #ff4dd2ac, 0 1px 8px #07d9ff77;
-  transition: 
+  transition:
     transform .14s cubic-bezier(.4,2,.6,.6),
     background .5s, box-shadow .32s;
   position: relative;
