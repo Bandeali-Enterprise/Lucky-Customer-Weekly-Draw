@@ -16,17 +16,22 @@
       <button class="glow-pink" type="submit">Enter This Week</button>
       <div id="custMsg"></div>
     </form>
+
     <div id="screenPopup" class="fullscreen-popup hide">
       <div class="popup-content">
         <span id="popupClose" class="popup-close">&times;</span>
         <div id="popupMessage"></div>
       </div>
     </div>
+
+    <button id="adminLoginBtn" class="glow-blue admin-login-button">Login as Admin</button>
+
     <div class="winner-section">
       <h2 class="glow-pink">This Week's Lucky Customer</h2>
       <div id="winnerCard" class="winner-card hide"></div>
     </div>
   </div>
+  
   <script>
     const screenPopup = document.getElementById('screenPopup');
     const popupMessage = document.getElementById('popupMessage');
@@ -40,6 +45,10 @@
       if (event.target === screenPopup) {
         screenPopup.classList.add('hide');
       }
+    };
+
+    document.getElementById('adminLoginBtn').onclick = () => {
+      window.location.href = '/admin.html';
     };
 
     document.getElementById('entryForm').onsubmit = async e => {
