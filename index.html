@@ -13,6 +13,7 @@
     <form id="entryForm" autocomplete="off">
       <input name="name" type="text" placeholder="Your Name" required />
       <input name="phone" type="tel" placeholder="Mobile Number" required />
+      <input name="userid" type="text" placeholder="Your ID" required />
       <button class="glow-pink" type="submit">Enter This Week</button>
       <div id="custMsg"></div>
     </form>
@@ -22,7 +23,6 @@
     </div>
   </div>
   <script>
-    // Entry submit
     document.getElementById('entryForm').onsubmit = async e => {
       e.preventDefault();
       let fd = new FormData(e.target);
@@ -36,7 +36,6 @@
       e.target.reset();
       getWinner();
     };
-    // Show latest winner (this week only)
     async function getWinner() {
       let card = document.getElementById('winnerCard');
       let res = await fetch('/api/winner');
