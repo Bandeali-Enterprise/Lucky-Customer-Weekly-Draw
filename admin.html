@@ -1,62 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Admin | Lucky Draw</title>
-  <link rel="stylesheet" href="style.css"/>
+  <meta charset="UTF-8" />
+  <title>Lucky Customer Weekly Draw</title>
+  <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
 </head>
 <body>
   <div class="container">
-    <h1 class="glow-pink">Admin: Weekly Draw</h1>
-    <div id="loginBox">
-      <input type="text" id="adminId" placeholder="Admin ID"/>
-      <input type="password" id="adminPass" placeholder="Password"/>
-      <button class="glow-blue" onclick="adminLogin()">Login</button>
-      <div id="adminLoginMsg"></div>
+    <h1 class="glow-blue">Lucky Customer Draw</h1>
+    <p class="notice glow-blue" style="margin: .5em 0 1.2em">Weekly Draw Result every Monday — Enter your details and check back every Monday!</p>
+    <form id="entryForm" autocomplete="off">
+      <input name="name" type="text" placeholder="Your Name" required />
+      <input name="phone" type="tel" placeholder="Mobile Number" required />
+      <button class="glow-pink" type="submit">Enter This Week</button>
+      <div id="custMsg"></div>
+    </form>
+
+    <div id="screenPopup" class="fullscreen-popup hide">
+      <div class="popup-content">
+        <span id="popupClose" class="popup-close">&times;</span>
+        <div id="popupMessage"></div>
+      </div>
     </div>
-    <div id="adminPanel" class="hide">
-      <button class="glow-pink" onclick="spinWinner()">🎰 Spin Winner</button>
-      <div id="spinMsg"></div>
-      <h3>Leads</h3>
-      <table id="leadsTbl"><tr><th>Name</th><th>Phone</th><th>Date</th></tr></table>
+
+    <button id="adminLoginBtn" class="glow-blue admin-login-button">Login as Admin</button>
+
+    <div class="winner-section">
+      <h2 class="glow-pink">This Week's Lucky Customer</h2>
+      <div id="winnerCard" class="winner-card hide"></div>
     </div>
   </div>
+  
   <script>
-    function adminLogin() {
-      fetch('/api/admin/login', {
+    const screenPopup = document.getElementById('screenPopup');
+    const popupMessage = document.getElementById('popupMessage');
+    const popupClose = document.getElementById('popupClose');
+
+    popupClose.onclick = () => {
+      screenPopup.classList.add('hide');
+    };
+
+    window.onclick = (event) => {
+      if (event.target === screenPopup) {
+        screenPopup.classList.add('hide');
+      }
+    };
+
+    document.getElementById('adminLoginBtn').onclick = () => {
+      window.location.href = '/admin.html';
+    };
+
+    document.getElementById('entryForm').onsubmit = async e => {
+      e.preventDefault();
+      let fd = new FormData(e.target);
+      let data = {};
+      fd.forEach((v, k) => data[k] = v);
+
+      let res = await fetch('/api/lead', {
         method:'POST',
-        headers: { 'Content-Type':'application/json' },
-        body: JSON.stringify({
-          adminid: document.getElementById('adminId').value,
-          password: document.getElementById('adminPass').value
-        })
-      }).then(r=>{
-        if(r.ok) {
-          document.getElementById('loginBox').classList.add('hide');
-          document.getElementById('adminPanel').classList.remove('hide');
-          loadLeads();
-        } else {
-          document.getElementById('adminLoginMsg').textContent = 'Wrong ID or Password!';
-        }
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(data)
       });
+
+      if(res.ok) {
+        popupMessage.innerHTML = '<div class="pop-success">🎉 Entry successful! Good luck for this week\'s draw!</div>';
+        screenPopup.classList.remove('hide');
+      } else if(res.status === 409) {
+        popupMessage.innerHTML = '<div class="pop-fail">⚠️ You are already enrolled, try again next week!</div>';
+        screenPopup.classList.remove('hide');
+      } else {
+        popupMessage.innerHTML = '<div class="pop-fail">✖️ Entry failed. Try again.</div>';
+        screenPopup.classList.remove('hide');
+      }
+
+      e.target.reset();
+      getWinner();
+    };
+
+    async function getWinner() {
+      let card = document.getElementById('winnerCard');
+      let res = await fetch('/api/winner');
+      let winner = await res.json();
+      if(winner && winner.name)
+        card.innerHTML = `<div class="winner-anim"><span>🎉</span></div>
+          <strong>${winner.name}</strong><br/>
+          <span class="phone">${winner.phone.replace(/.(?=.{4})/g, '*')}</span><br/>
+          <small>(Picked: ${winner.week_date})</small>`;
+      card.classList.toggle('hide', !winner.name);
     }
-    function loadLeads() {
-      fetch('/api/admin/leads')
-      .then(r=>r.json()).then(rows=>{
-        let tbl = document.getElementById('leadsTbl');
-        tbl.innerHTML = '<tr><th>Name</th><th>Phone</th><th>Date</th></tr>'+
-          rows.map(x=>`<tr><td>${x.name}</td><td>${x.phone}</td><td>${x.date}</td></tr>`).join('');
-      });
-    }
-    function spinWinner() {
-      fetch('/api/admin/spin', { method:'POST' })
-      .then(r=>r.json()).then(win=>{
-        document.getElementById('spinMsg').innerHTML = win.error
-          ? win.error
-          : `<div class="winner-card winner-anim"><span>🏆</span><br/><b>${win.name}</b><br/>${win.phone}</div>`;
-      });
-    }
+    getWinner();
   </script>
 </body>
 </html>
