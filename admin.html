@@ -10,7 +10,8 @@
   <div class="container">
     <h1 class="glow-pink">Admin: Weekly Draw</h1>
     <div id="loginBox">
-      <input type="password" id="adminPass" placeholder="Admin Password"/>
+      <input type="text" id="adminId" placeholder="Admin ID"/>
+      <input type="password" id="adminPass" placeholder="Password"/>
       <button class="glow-blue" onclick="adminLogin()">Login</button>
       <div id="adminLoginMsg"></div>
     </div>
@@ -18,7 +19,7 @@
       <button class="glow-pink" onclick="spinWinner()">🎰 Spin Winner</button>
       <div id="spinMsg"></div>
       <h3>Leads</h3>
-      <table id="leadsTbl"><tr><th>Name</th><th>Phone</th><th>Date</th></tr></table>
+      <table id="leadsTbl"><tr><th>Name</th><th>Phone</th><th>ID</th><th>Date</th></tr></table>
     </div>
   </div>
   <script>
@@ -26,14 +27,17 @@
       fetch('/api/admin/login', {
         method:'POST',
         headers: { 'Content-Type':'application/json' },
-        body: JSON.stringify({ password: document.getElementById('adminPass').value })
+        body: JSON.stringify({
+          adminid: document.getElementById('adminId').value,
+          password: document.getElementById('adminPass').value
+        })
       }).then(r=>{
         if(r.ok) {
           document.getElementById('loginBox').classList.add('hide');
           document.getElementById('adminPanel').classList.remove('hide');
           loadLeads();
         } else {
-          document.getElementById('adminLoginMsg').textContent = 'Wrong password!';
+          document.getElementById('adminLoginMsg').textContent = 'Wrong ID or Password!';
         }
       });
     }
@@ -41,8 +45,8 @@
       fetch('/api/admin/leads')
       .then(r=>r.json()).then(rows=>{
         let tbl = document.getElementById('leadsTbl');
-        tbl.innerHTML = '<tr><th>Name</th><th>Phone</th><th>Date</th></tr>'+
-          rows.map(x=>`<tr><td>${x.name}</td><td>${x.phone}</td><td>${x.date}</td></tr>`).join('');
+        tbl.innerHTML = '<tr><th>Name</th><th>Phone</th><th>ID</th><th>Date</th></tr>'+
+          rows.map(x=>`<tr><td>${x.name}</td><td>${x.phone}</td><td>${x.userid}</td><td>${x.date}</td></tr>`).join('');
       });
     }
     function spinWinner() {
