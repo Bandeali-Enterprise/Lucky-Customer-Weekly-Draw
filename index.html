@@ -16,32 +16,53 @@
       <button class="glow-pink" type="submit">Enter This Week</button>
       <div id="custMsg"></div>
     </form>
-    <div id="popupMsg" class="popup-msg"></div>
+
+    <div id="screenPopup" class="fullscreen-popup hide">
+      <div class="popup-content">
+        <span id="popupClose" class="popup-close">&times;</span>
+        <div id="popupMessage"></div>
+      </div>
+    </div>
+
     <div class="winner-section">
       <h2 class="glow-pink">This Week's Lucky Customer</h2>
       <div id="winnerCard" class="winner-card hide"></div>
     </div>
   </div>
   <script>
+    const screenPopup = document.getElementById('screenPopup');
+    const popupMessage = document.getElementById('popupMessage');
+    const popupClose = document.getElementById('popupClose');
+
+    popupClose.onclick = () => {
+      screenPopup.classList.add('hide');
+    };
+
+    window.onclick = (event) => {
+      if (event.target === screenPopup) {
+        screenPopup.classList.add('hide');
+      }
+    };
+
     document.getElementById('entryForm').onsubmit = async e => {
       e.preventDefault();
       let fd = new FormData(e.target);
       let data = {};
       fd.forEach((v, k) => data[k] = v);
-      let popup=document.getElementById('popupMsg');
+
       let res = await fetch('/api/lead', {
         method:'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data)
       });
       if(res.ok) {
-        popup.innerHTML = '<div class="pop-success">🎉 Entry successful! Good luck for this week\'s draw!</div>';
+        popupMessage.innerHTML = '<div class="pop-success">🎉 Entry successful! Good luck for this week\'s draw!</div>';
       } else {
-        popup.innerHTML = '<div class="pop-fail">✖️ Entry failed. Try again.</div>';
+        popupMessage.innerHTML = '<div class="pop-fail">✖️ Entry failed. Try again.</div>';
       }
-      popup.style.display='block';
-      setTimeout(()=>popup.style.display='none', 2500);
+      screenPopup.classList.remove('hide');
       e.target.reset();
       getWinner();
     };
+
     async function getWinner() {
       let card = document.getElementById('winnerCard');
       let res = await fetch('/api/winner');
