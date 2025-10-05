@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Poppins:wght@400;600&display=swap');
+body {
+  background: #131324;
+  color: #fff;
+  font-family: 'Poppins', Arial, sans-serif;
+  min-height: 100vh;
+  margin:0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.container {
+  background: #18182e;
+  border-radius: 18px;
+  padding: 2rem 2.5rem;
+  box-shadow: 0 0 32px #fc1e8a88, 0 4px 22px #00b4fc66, 0 0 24px #000b;
+  max-width: 400px;
+  width: 100%;
+}
+h1, h2, h3 { font-family: 'Orbitron', sans-serif; }
+.glow-blue { color: #07d9ff; text-shadow: 0 0 12px #07d9ff66, 0 0 22px #07d9ff55;}
+.glow-pink { color: #fc1e8a; text-shadow: 0 0 14px #fc1e8a88, 0 0 24px #fc1e8a55;}
+input, button {
+  padding: .85rem 1rem;
+  font-size: 1rem;
+  border-radius: 12px;
+  border: none;
+  outline: none;
+  background: #232349;
+  margin: .5rem 0;
+  color: #fff;
+}
+button {
+  cursor: pointer;
+  font-family: 'Orbitron', 'Poppins', Arial, sans-serif;
+  font-weight: bold;
+  letter-spacing: 1px;
+  box-shadow: 0 0 12px #07d9ff88, 0 0 20px #fc1e8a33;
+  transition: box-shadow .3s;
+}
+button.glow-blue { background: linear-gradient(90deg,#07d9ff,#00b4fc); }
+button.glow-pink { background: linear-gradient(90deg,#fc1e8a,#fc66cb); }
+button:active { box-shadow: 0 0 32px #00b4fc,0 0 48px #fc1e8a70; }
+.winner-card {
+  margin-top: 1.2rem;
+  padding: 1.1em;
+  background: #181848bb;
+  border-radius:12px;
+  border: 2.5px solid #07d9ff;
+  color:#fff;
+  font-size: 1.1rem;
+  box-shadow: 0 0 50px #fc1e8a33,0 0 28px #07d9ff55;
+  animation: flicker 1.2s infinite alternate;
+  text-align: center;
+}
+.winner-anim span { font-size: 2.2em; display: block; margin-bottom: .2em; }
+.hide{ display:none; }
+@keyframes flicker {
+  0% { box-shadow:0 0 34px #fc1e8a55,0 0 18px #07d9ff55;}
+  100% { box-shadow:0 0 57px #fc1e8a88,0 0 32px #07d9ff77;}
+}
+@media (max-width:500px) {
+  .container{ padding:1rem; max-width:98vw;}
+  .winner-card{ font-size:.92rem;}
+}
+table {
+  width:100%; background:#151530cc; color:#fff; border-radius:6px; margin-top:1em;
+  font-size:.97em;
+}
+th,td { padding:.4em; text-align:left;}

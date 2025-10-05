@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lucky Customer Weekly Draw</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
+</head>
+<body>
+  <div class="container">
+    <h1 class="glow-blue">Lucky Customer Draw</h1>
+    <p class="notice glow-blue" style="margin: .5em 0 1.2em">Weekly Draw Result every Monday — Enter your details and check back every Monday!</p>
+    <form id="entryForm" autocomplete="off">
+      <input name="name" type="text" placeholder="Your Name" required />
+      <input name="phone" type="tel" placeholder="Mobile Number" required />
+      <button class="glow-pink" type="submit">Enter This Week</button>
+      <div id="custMsg"></div>
+    </form>
+    <div class="winner-section">
+      <h2 class="glow-pink">This Week's Lucky Customer</h2>
+      <div id="winnerCard" class="winner-card hide"></div>
+    </div>
+  </div>
+  <script>
+    // Entry submit
+    document.getElementById('entryForm').onsubmit = async e => {
+      e.preventDefault();
+      let fd = new FormData(e.target);
+      let data = {};
+      fd.forEach((v, k) => data[k] = v);
+      let msgElem = document.getElementById('custMsg');
+      let res = await fetch('/api/lead', {
+        method:'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data)
+      });
+      msgElem.textContent = res.ok ? "You're In! Good luck 🎉" : "Error submitting!";
+      e.target.reset();
+      getWinner();
+    };
+    // Show latest winner (this week only)
+    async function getWinner() {
+      let card = document.getElementById('winnerCard');
+      let res = await fetch('/api/winner');
+      let winner = await res.json();
+      if(winner && winner.name)
+        card.innerHTML = `<div class="winner-anim"><span>🎉</span></div>
+          <strong>${winner.name}</strong><br/>
+          <span class="phone">${winner.phone.replace(/.(?=.{4})/g, '*')}</span><br/>
+          <small>(Picked: ${winner.week_date})</small>`;
+      card.classList.toggle('hide', !winner.name);
+    }
+    getWinner();
+  </script>
+</body>
+</html>
