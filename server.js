@@ -91,5 +91,13 @@ app.post('/api/admin/spin', (req, res) => {
   });
 });
 
+// ADMIN RESET LEADS API
+app.post('/api/admin/reset-leads', (req, res) => {
+  db.run('DELETE FROM leads', [], function (err) {
+    if (err) return res.status(500).send('DB Error');
+    res.json({ success: true });
+  });
+});
+
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log('Lucky Draw server running on ' + port));
