@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Lucky Customer Weekly Draw</title>
+  <title>Lucky Customer Draw</title>
   <link rel="stylesheet" href="style.css" />
   <link
     href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Poppins:wght@400;600&display=swap"
@@ -12,11 +12,13 @@
 <body>
   <div class="container">
     <h1 class="glow-blue">Lucky Customer Draw</h1>
-    <p class="notice glow-blue" style="margin: 0.5em 0 1.2em">Weekly Draw Result every Monday — Enter your details and check back every Monday!</p>
+    <p class="notice glow-blue" style="margin:0.5em 0 1.2em">
+      Enter your details — Admin jab tak new spin nahi karega, wahi Lucky Customer dikhega!
+    </p>
     <form id="entryForm" autocomplete="off">
       <input name="name" type="text" placeholder="Your Name" required />
       <input name="phone" type="tel" placeholder="Mobile Number" required />
-      <button class="glow-pink" type="submit">Enter This Week</button>
+      <button class="glow-pink" type="submit">Enter Draw</button>
       <div id="custMsg"></div>
     </form>
 
@@ -30,7 +32,7 @@
     <button id="adminLoginBtn" class="glow-blue admin-login-button">Login as Admin</button>
 
     <div class="winner-section">
-      <h2 class="glow-pink">This Week's Lucky Customer</h2>
+      <h2 class="glow-pink">Lucky Customer</h2>
       <div id="winnerCard" class="winner-card hide"></div>
     </div>
   </div>
@@ -67,11 +69,11 @@
 
       if (res.ok) {
         popupMessage.innerHTML =
-          "<div class='pop-success'>🎉 Entry successful! Good luck for this week's draw!</div>";
+          "<div class='pop-success'>🎉 Entry successful! Good luck!</div>";
         screenPopup.classList.remove("hide");
       } else if (res.status === 409) {
         popupMessage.innerHTML =
-          "<div class='pop-fail'>⚠️ You are already enrolled, try again next week!</div>";
+          "<div class='pop-fail'>⚠️ You are already enrolled!</div>";
         screenPopup.classList.remove("hide");
       } else {
         popupMessage.innerHTML =
@@ -90,7 +92,7 @@
         card.innerHTML = `<div class="winner-anim"><span>🎉</span></div>
           <strong>${winner.name}</strong><br/>
           <span class="phone">${winner.phone.replace(/.(?=.{4})/g, "*")}</span><br/>
-          <small>(Picked: ${winner.week_date})</small>`;
+          <small>(Picked: ${winner.picked_at?.slice(0, 10) || ""})</small>`;
       card.classList.toggle("hide", !winner.name);
     }
     getWinner();
