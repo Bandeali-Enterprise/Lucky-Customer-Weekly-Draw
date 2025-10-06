@@ -19,8 +19,10 @@
       <div id="adminLoginMsg"></div>
     </div>
     <div id="adminPanel" class="hide">
-      <button class="glow-pink" onclick="spinWinner()">🎰 Spin Winner</button>
-      <button class="glow-blue" onclick="resetLeads()" style="margin-left:0.7em;">🗑️ Reset Leads</button>
+      <div style="display:flex; gap:12px; align-items:center; margin-bottom: 1.2em;">
+        <button class="glow-pink spin-btn" onclick="spinWinner()">🎰 Spin Winner</button>
+        <button class="glow-blue reset-btn" onclick="resetLeads()">🗑️</button>
+      </div>
       <div id="spinMsg"></div>
       <div id="resetMsg"></div>
       <h3>Leads</h3>
