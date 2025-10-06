@@ -20,7 +20,9 @@
     </div>
     <div id="adminPanel" class="hide">
       <button class="glow-pink" onclick="spinWinner()">🎰 Spin Winner</button>
+      <button class="glow-blue" onclick="resetLeads()" style="margin-left:0.7em;">🗑️ Reset Leads</button>
       <div id="spinMsg"></div>
+      <div id="resetMsg"></div>
       <h3>Leads</h3>
       <table id="leadsTbl">
         <tr>
@@ -73,6 +75,17 @@
           document.getElementById("spinMsg").innerHTML = win.error
             ? win.error
             : `<div class="winner-card winner-anim"><span>🏆</span><br/><b>${win.name}</b><br/>${win.phone}</div>`;
+        });
+    }
+    function resetLeads() {
+      if (!confirm("Are you sure you want to delete all leads?")) return;
+      fetch("/api/admin/reset-leads", { method: "POST" })
+        .then((r) => r.json())
+        .then((resp) => {
+          document.getElementById("resetMsg").innerHTML = resp.success
+            ? "<div class='pop-success'>All leads deleted!</div>"
+            : "<div class='pop-fail'>Error deleting leads!</div>";
+          loadLeads();
         });
     }
   </script>
