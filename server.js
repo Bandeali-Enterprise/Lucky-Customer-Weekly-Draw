@@ -13,7 +13,7 @@ const ADMINS = [
 const app = express();
 const db = new sqlite3.Database('./data.db');
 
-// SETUP TABLES
+// DB SETUP
 db.serialize(() => {
   db.run(`CREATE TABLE IF NOT EXISTS leads (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -50,7 +50,11 @@ app.post('/api/lead', (req, res) => {
 
 // Get Current Winner
 app.get('/api/winner', (req, res) => {
-  db.get(`SELECT l.name, l.phone, w.picked_at FROM winner w JOIN leads l ON w.lead_id = l.id ORDER BY w.picked_at DESC LIMIT 1`, [], (err, row) => {
+  db.get(`SELECT l.name, l.phone, w.picked_at
+    FROM winner w
+    JOIN leads l ON w.lead_id = l.id
+    ORDER BY w.picked_at DESC
+    LIMIT 1`, [], (err, row) => {
     res.json(row || {});
   });
 });
@@ -63,14 +67,14 @@ app.post('/api/admin/login', (req, res) => {
   res.status(403).json({ error: 'Wrong ID or Password' });
 });
 
-// Get all leads
+// Get all leads (admin)
 app.get('/api/admin/leads', (req, res) => {
   db.all('SELECT * FROM leads ORDER BY id DESC', (err, rows) => {
     res.json(rows);
   });
 });
 
-// SPIN Winner — delete previous winner and set new one
+// SPIN Winner (reset previous and set new)
 app.post('/api/admin/spin', (req, res) => {
   db.all('SELECT * FROM leads', (err, leads) => {
     if (!leads || !leads.length) return res.json({ error: 'No entries' });
