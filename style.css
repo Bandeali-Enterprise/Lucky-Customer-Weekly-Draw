@@ -1,3 +1,4 @@
+/* ===== GLOBAL STYLES ===== */
 body {
   background: #131324;
   color: #fff;
@@ -8,6 +9,8 @@ body {
   align-items: center;
   justify-content: center;
 }
+
+/* ===== CONTAINER ===== */
 .container {
   background: #18182e;
   border-radius: 18px;
@@ -16,11 +19,13 @@ body {
   max-width: 400px;
   width: 100%;
 }
-h1,
-h2,
-h3 {
+
+/* ===== HEADINGS ===== */
+h1, h2, h3 {
   font-family: 'Orbitron', sans-serif;
 }
+
+/* ===== TEXT EFFECTS ===== */
 .glow-blue {
   color: #07d9ff;
   text-shadow: 0 0 12px #07d9ff66, 0 0 22px #07d9ff55;
@@ -29,6 +34,8 @@ h3 {
   color: #fc1e8a;
   text-shadow: 0 0 14px #fc1e8a88, 0 0 24px #fc1e8a55;
 }
+
+/* ===== INPUTS & BUTTONS ===== */
 input,
 button {
   width: 100%;
@@ -45,6 +52,7 @@ button {
   box-shadow: 0 0 12px #07d9ff22;
   transition: box-shadow 0.18s;
 }
+
 input::placeholder {
   color: #b7b7c8;
   font-size: 1.04em;
@@ -53,27 +61,25 @@ input::placeholder {
 input:focus {
   box-shadow: 0 0 28px #07d9ff99, 0 0 8px #fc1e8a55;
 }
+
+/* ===== BUTTON STYLES ===== */
 button {
   cursor: pointer;
   font-family: 'Orbitron', 'Poppins', Arial, sans-serif;
   font-weight: bold;
   letter-spacing: 1px;
-  padding: 1.1em 0;
-  width: 100%;
-  margin: 0.5rem 0 0.8rem 0;
-  border: none;
   border-radius: 18px;
   font-size: 1.11em;
   background: linear-gradient(90deg, #fc1e8a 10%, #07d9ff 90%);
   color: #fff !important;
   box-shadow: 0 0 22px #fc1e8a66, 0 0 32px #07d9ff44;
   text-shadow: 0 2px 18px #ff4dd2ac, 0 1px 8px #07d9ff77;
-  transition: transform 0.14s cubic-bezier(0.4, 2, 0.6, 0.6),
-    background 0.5s, box-shadow 0.32s;
   position: relative;
   overflow: hidden;
+  transition: transform 0.14s cubic-bezier(0.4, 2, 0.6, 0.6),
+              background 0.5s, box-shadow 0.32s;
 }
-button:before {
+button::before {
   content: '';
   position: absolute;
   left: -40%;
@@ -95,13 +101,15 @@ button:hover {
   background: linear-gradient(100deg, #07d9ff 10%, #fc1e8a 90%);
   box-shadow: 0 0 50px #07d9ffbb, 0 0 22px #fc1e8a99, 0 0 60px #fff3;
 }
-button:hover:before {
+button:hover::before {
   left: 120%;
 }
 button:active {
-  transform: scale(0.99) rotate(0deg);
+  transform: scale(0.99);
   box-shadow: 0 0 38px #fc1e8add, 0 0 54px #07d9ff99;
 }
+
+/* ===== WINNER CARD ===== */
 .winner-card {
   margin-top: 1.2rem;
   padding: 1.1em;
@@ -122,6 +130,7 @@ button:active {
 .hide {
   display: none;
 }
+
 @keyframes flicker {
   0% {
     box-shadow: 0 0 34px #fc1e8a55, 0 0 18px #07d9ff55;
@@ -130,6 +139,8 @@ button:active {
     box-shadow: 0 0 57px #fc1e8a88, 0 0 32px #07d9ff77;
   }
 }
+
+/* ===== RESPONSIVE DESIGN ===== */
 @media (max-width: 500px) {
   .container {
     padding: 0.7rem;
@@ -147,6 +158,55 @@ button:active {
     font-size: 0.92rem;
   }
 }
+
+/* ===== BUTTON VARIANTS ===== */
+.spin-btn {
+  flex: 1 1 70%;
+  font-size: 1.29em;
+  font-weight: bold;
+  padding: 1em 0.5em;
+  min-width: 160px;
+}
+.reset-btn {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  padding: 0;
+  font-size: 1.28em;
+  font-weight: bold;
+  margin-left: 12px;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 12px #00cfe6bb, 0 0 10px #fc1e8a55;
+  background: linear-gradient(100deg, #fc1e8a 10%, #07d9ff 90%);
+  transition: background 0.36s, box-shadow 0.29s;
+}
+.reset-btn:hover {
+  box-shadow: 0 0 20px #ff4699cc, 0 0 18px #0ad9efff;
+  background: linear-gradient(100deg, #07d9ff 10%, #fc1e8a 90%);
+}
+
+@media (max-width: 520px) {
+  .spin-btn,
+  .reset-btn {
+    flex: unset;
+    min-width: 0;
+    width: 100%;
+    margin-left: 0;
+    margin-top: 0.4em;
+    border-radius: 18px;
+    height: 46px;
+    display: block;
+  }
+  div[style*="display:flex"] {
+    display: block !important;
+  }
+}
+
+/* ===== POPUP MESSAGES ===== */
 .popup-msg {
   position: fixed;
   left: 50%;
@@ -178,17 +238,14 @@ button:active {
   border: 2.5px solid #fc1e8a;
   text-shadow: 0 0 12px #fc1e8a;
 }
+
 @keyframes popUp {
-  0% {
-    transform: scale(0.7);
-  }
-  80% {
-    transform: scale(1.09);
-  }
-  100% {
-    transform: scale(1);
-  }
+  0% { transform: scale(0.7); }
+  80% { transform: scale(1.09); }
+  100% { transform: scale(1); }
 }
+
+/* ===== FULLSCREEN POPUP ===== */
 .fullscreen-popup {
   position: fixed;
   z-index: 10000;
