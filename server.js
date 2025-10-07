@@ -17,32 +17,29 @@ const WINNER_FILE = 'winner.json';
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Static files (optional for front-end)
+// Serve static files (if you have custom HTML/CSS)
 app.get('/style.css', (req, res) => res.sendFile(path.join(__dirname, 'style.css')));
 app.get('/index.html', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.get('/admin.html', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
-// Helper Functions for File Read/Write
+// Helper: Read and Write leads.json and winner.json
 function readLeads() {
   if (!fs.existsSync(LEADS_FILE)) return [];
   return JSON.parse(fs.readFileSync(LEADS_FILE, 'utf-8'));
 }
-
 function writeLeads(leads) {
   fs.writeFileSync(LEADS_FILE, JSON.stringify(leads, null, 2));
 }
-
 function readWinner() {
-  if (!fs.existsSync(WINNER_FILE)) return null;
+  if (!fs.existsSync(WINNER_FILE)) return {};
   return JSON.parse(fs.readFileSync(WINNER_FILE, 'utf-8'));
 }
-
 function writeWinner(winner) {
-  fs.writeFileSync(WINNER_FILE, JSON.stringify(winner, null, 2));
+  fs.writeFileSync(WINNER_FILE, JSON.stringify(winner || {}, null, 2));
 }
 
-// Lead Entry API (leads.json me save)
+// Lead Entry API
 app.post('/api/lead', (req, res) => {
   const { name, phone } = req.body;
   if (!name || !phone) return res.status(400).send('All fields required');
@@ -53,7 +50,7 @@ app.post('/api/lead', (req, res) => {
   res.json({ success: true });
 });
 
-// Get Current Winner API
+// Winner API (get)
 app.get('/api/winner', (req, res) => {
   const winner = readWinner();
   res.json(winner || {});
@@ -71,8 +68,7 @@ app.post('/api/admin/login', (req, res) => {
 
 // Get All Leads (admin)
 app.get('/api/admin/leads', (req, res) => {
-  const leads = readLeads();
-  res.json(leads);
+  res.json(readLeads());
 });
 
 // Spin and Pick Winner (admin)
@@ -85,13 +81,13 @@ app.post('/api/admin/spin', (req, res) => {
   res.json({ name: winner.name, phone: winner.phone });
 });
 
-// Reset Leads + Winner ("fresh file") Admin API
+// Reset Leads and Winner (fresh)
 app.post('/api/admin/reset-leads', (req, res) => {
   writeLeads([]);
-  writeWinner(null);
+  writeWinner({});
   res.json({ success: true });
 });
 
-// Server Listen
+// Start server
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log('Lucky Draw (leads.json version) server running on ' + port));
+app.listen(port, () => console.log('Lucky Draw (leads.json) server running on ' + port));
