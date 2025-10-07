@@ -1,5 +1,5 @@
 const express = require('express');
-const sqlite3 = require('sqlite3').verbose();
+const fs = require('fs');
 const bodyParser = require('body-parser');
 const path = require('path');
 
@@ -11,20 +11,8 @@ const ADMINS = [
 ];
 
 const app = express();
-const db = new sqlite3.Database('./data.db');
-
-// DB SETUP
-db.serialize(() => {
-  db.run(`CREATE TABLE IF NOT EXISTS leads (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT, phone TEXT, date TEXT
-  )`);
-  db.run(`CREATE TABLE IF NOT EXISTS winner (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    lead_id INTEGER, picked_at TEXT,
-    FOREIGN KEY (lead_id) REFERENCES leads(id)
-  )`);
-});
+const LEADS_FILE = 'leads.json';
+const WINNER_FILE = 'winner.json';
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -35,31 +23,40 @@ app.get('/index.html', (req, res) => res.sendFile(path.join(__dirname, 'index.ht
 app.get('/admin.html', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
-// Lead Entry API
+// Helper Functions for File Read/Write
+function readLeads() {
+  if (!fs.existsSync(LEADS_FILE)) return [];
+  return JSON.parse(fs.readFileSync(LEADS_FILE, 'utf-8'));
+}
+
+function writeLeads(leads) {
+  fs.writeFileSync(LEADS_FILE, JSON.stringify(leads, null, 2));
+}
+
+function readWinner() {
+  if (!fs.existsSync(WINNER_FILE)) return null;
+  return JSON.parse(fs.readFileSync(WINNER_FILE, 'utf-8'));
+}
+
+function writeWinner(winner) {
+  fs.writeFileSync(WINNER_FILE, JSON.stringify(winner, null, 2));
+}
+
+// Lead Entry API (leads.json me save)
 app.post('/api/lead', (req, res) => {
   const { name, phone } = req.body;
   if (!name || !phone) return res.status(400).send('All fields required');
-  db.get('SELECT * FROM leads WHERE phone = ?', [phone], (err, row) => {
-    if (err) return res.status(500).send('DB Error');
-    if (row) return res.status(409).json({ already: true });
-    const date = new Date().toISOString();
-    db.run('INSERT INTO leads (name, phone, date) VALUES (?, ?, ?)', [name, phone, date], function (err) {
-      if (err) return res.status(500).send('DB Error');
-      res.json({ success: true });
-    });
-  });
+  let leads = readLeads();
+  if (leads.find(l => l.phone === phone)) return res.status(409).json({ already: true });
+  leads.push({ name, phone, date: new Date().toISOString() });
+  writeLeads(leads);
+  res.json({ success: true });
 });
 
 // Get Current Winner API
 app.get('/api/winner', (req, res) => {
-  db.get(`SELECT l.name, l.phone, w.picked_at
-          FROM winner w
-          JOIN leads l ON w.lead_id = l.id
-          ORDER BY w.picked_at DESC
-          LIMIT 1`, [], (err, row) => {
-    if (err) return res.status(500).send('DB Error');
-    res.json(row || {});
-  });
+  const winner = readWinner();
+  res.json(winner || {});
 });
 
 // Admin Login API
@@ -74,43 +71,27 @@ app.post('/api/admin/login', (req, res) => {
 
 // Get All Leads (admin)
 app.get('/api/admin/leads', (req, res) => {
-  db.all('SELECT * FROM leads ORDER BY id DESC', (err, rows) => {
-    if (err) return res.status(500).send('DB Error');
-    res.json(rows);
-  });
+  const leads = readLeads();
+  res.json(leads);
 });
 
 // Spin and Pick Winner (admin)
 app.post('/api/admin/spin', (req, res) => {
-  db.all('SELECT * FROM leads', (err, leads) => {
-    if (err) return res.status(500).send('DB Error');
-    if (!leads || !leads.length) return res.json({ error: 'No entries' });
-    const winner = leads[Math.floor(Math.random() * leads.length)];
-    const now = new Date().toISOString();
-    db.serialize(() => {
-      db.run('DELETE FROM winner', [], (err) => {
-        db.run('INSERT INTO winner (lead_id, picked_at) VALUES (?, ?)', [winner.id, now], function (err) {
-          if (err) return res.status(500).send('DB Error');
-          res.json({ name: winner.name, phone: winner.phone });
-        });
-      });
-    });
-  });
+  let leads = readLeads();
+  if (!leads.length) return res.json({ error: 'No entries' });
+  const winner = leads[Math.floor(Math.random() * leads.length)];
+  const picked_at = new Date().toISOString();
+  writeWinner({ name: winner.name, phone: winner.phone, picked_at });
+  res.json({ name: winner.name, phone: winner.phone });
 });
 
-// Reset Leads ("fresh file") Admin API
+// Reset Leads + Winner ("fresh file") Admin API
 app.post('/api/admin/reset-leads', (req, res) => {
-  db.serialize(() => {
-    db.run('DELETE FROM leads', [], function (err) {
-      if (err) return res.status(500).send('DB Error');
-      db.run('DELETE FROM winner', [], function (err) {
-        if (err) return res.status(500).send('DB Error');
-        res.json({ success: true });
-      });
-    });
-  });
+  writeLeads([]);
+  writeWinner(null);
+  res.json({ success: true });
 });
 
 // Server Listen
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log('Lucky Draw server running on ' + port));
+app.listen(port, () => console.log('Lucky Draw (leads.json version) server running on ' + port));
