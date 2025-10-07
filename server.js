@@ -29,16 +29,18 @@ db.serialize(() => {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Static files (optional for front-end)
 app.get('/style.css', (req, res) => res.sendFile(path.join(__dirname, 'style.css')));
 app.get('/index.html', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.get('/admin.html', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
-// Lead Entry
+// Lead Entry API
 app.post('/api/lead', (req, res) => {
   const { name, phone } = req.body;
   if (!name || !phone) return res.status(400).send('All fields required');
   db.get('SELECT * FROM leads WHERE phone = ?', [phone], (err, row) => {
+    if (err) return res.status(500).send('DB Error');
     if (row) return res.status(409).json({ already: true });
     const date = new Date().toISOString();
     db.run('INSERT INTO leads (name, phone, date) VALUES (?, ?, ?)', [name, phone, date], function (err) {
@@ -48,35 +50,40 @@ app.post('/api/lead', (req, res) => {
   });
 });
 
-// Get Current Winner
+// Get Current Winner API
 app.get('/api/winner', (req, res) => {
   db.get(`SELECT l.name, l.phone, w.picked_at
-    FROM winner w
-    JOIN leads l ON w.lead_id = l.id
-    ORDER BY w.picked_at DESC
-    LIMIT 1`, [], (err, row) => {
+          FROM winner w
+          JOIN leads l ON w.lead_id = l.id
+          ORDER BY w.picked_at DESC
+          LIMIT 1`, [], (err, row) => {
+    if (err) return res.status(500).send('DB Error');
     res.json(row || {});
   });
 });
 
-// Admin login
+// Admin Login API
 app.post('/api/admin/login', (req, res) => {
   const { adminid, password } = req.body;
-  const found = ADMINS.find(x => x.id === adminid && x.password === password);
+  const found = ADMINS.find(
+    x => x.id === adminid && x.password === password
+  );
   if (found) return res.json({ success: true });
   res.status(403).json({ error: 'Wrong ID or Password' });
 });
 
-// Get all leads (admin)
+// Get All Leads (admin)
 app.get('/api/admin/leads', (req, res) => {
   db.all('SELECT * FROM leads ORDER BY id DESC', (err, rows) => {
+    if (err) return res.status(500).send('DB Error');
     res.json(rows);
   });
 });
 
-// SPIN Winner (reset previous and set new)
+// Spin and Pick Winner (admin)
 app.post('/api/admin/spin', (req, res) => {
   db.all('SELECT * FROM leads', (err, leads) => {
+    if (err) return res.status(500).send('DB Error');
     if (!leads || !leads.length) return res.json({ error: 'No entries' });
     const winner = leads[Math.floor(Math.random() * leads.length)];
     const now = new Date().toISOString();
@@ -91,13 +98,19 @@ app.post('/api/admin/spin', (req, res) => {
   });
 });
 
-// ADMIN RESET LEADS API
+// Reset Leads ("fresh file") Admin API
 app.post('/api/admin/reset-leads', (req, res) => {
-  db.run('DELETE FROM leads', [], function (err) {
-    if (err) return res.status(500).send('DB Error');
-    res.json({ success: true });
+  db.serialize(() => {
+    db.run('DELETE FROM leads', [], function (err) {
+      if (err) return res.status(500).send('DB Error');
+      db.run('DELETE FROM winner', [], function (err) {
+        if (err) return res.status(500).send('DB Error');
+        res.json({ success: true });
+      });
+    });
   });
 });
 
+// Server Listen
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log('Lucky Draw server running on ' + port));
