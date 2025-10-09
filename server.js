@@ -1,7 +1,8 @@
 const express = require('express');
-const fs = require('fs');
 const bodyParser = require('body-parser');
 const path = require('path');
+const admin = require('firebase-admin');
+const serviceAccount = require('./firebase-service-account.json'); // Secret key local hi rakho
 
 const ADMINS = [
   { id: "Santosh", password: "Santosh@123" },
@@ -10,9 +11,13 @@ const ADMINS = [
   { id: "Rani", password: "Rani@123" }
 ];
 
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://<your-firebase-project-id>.firebaseio.com" // Apne Firebase console se real URL daalein
+});
+
+const db = admin.database();
 const app = express();
-const LEADS_FILE = 'leads.json';
-const WINNER_FILE = 'winner.json';
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -22,36 +27,21 @@ app.get('/index.html', (req, res) => res.sendFile(path.join(__dirname, 'index.ht
 app.get('/admin.html', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
-function readLeads() {
-  if (!fs.existsSync(LEADS_FILE)) return [];
-  return JSON.parse(fs.readFileSync(LEADS_FILE, 'utf-8'));
-}
-function writeLeads(leads) {
-  fs.writeFileSync(LEADS_FILE, JSON.stringify(leads, null, 2));
-}
-function readWinner() {
-  if (!fs.existsSync(WINNER_FILE)) return {};
-  return JSON.parse(fs.readFileSync(WINNER_FILE, 'utf-8'));
-}
-function writeWinner(winner) {
-  fs.writeFileSync(WINNER_FILE, JSON.stringify(winner || {}, null, 2));
-}
-
 // Customer Lead Entry
-app.post('/api/lead', (req, res) => {
+app.post('/api/lead', async (req, res) => {
   const { name, phone } = req.body;
   if (!name || !phone) return res.status(400).send('All fields required');
-  let leads = readLeads();
-  if (leads.find(l => l.phone === phone)) return res.status(409).json({ already: true });
-  leads.push({ name, phone, date: new Date().toISOString() });
-  writeLeads(leads);
+  const leadsRef = db.ref('leads');
+  const snapshot = await leadsRef.orderByChild('phone').equalTo(phone).once('value');
+  if (snapshot.exists()) return res.status(409).json({ already: true });
+  await leadsRef.push({ name, phone, date: new Date().toISOString() });
   res.json({ success: true });
 });
 
 // Winner Section
-app.get('/api/winner', (req, res) => {
-  const winner = readWinner();
-  res.json(winner || {});
+app.get('/api/winner', async (req, res) => {
+  const snapshot = await db.ref('winner').once('value');
+  res.json(snapshot.val() || {});
 });
 
 // Admin Login
@@ -63,26 +53,33 @@ app.post('/api/admin/login', (req, res) => {
 });
 
 // Admin Leads Table
-app.get('/api/admin/leads', (req, res) => {
-  res.json(readLeads());
+app.get('/api/admin/leads', async (req, res) => {
+  const snapshot = await db.ref('leads').once('value');
+  const leadsObj = snapshot.val() || {};
+  // Object ko array me convert karo
+  const leads = Object.values(leadsObj);
+  res.json(leads);
 });
 
 // Spin Winner (Admin)
-app.post('/api/admin/spin', (req, res) => {
-  let leads = readLeads();
-  if (!leads.length) return res.json({ error: 'No entries' });
+app.post('/api/admin/spin', async (req, res) => {
+  const leadsSnapshot = await db.ref('leads').once('value');
+  const leadsObj = leadsSnapshot.val();
+  if (!leadsObj) return res.json({ error: 'No entries' });
+
+  const leads = Object.values(leadsObj);
   const winner = leads[Math.floor(Math.random() * leads.length)];
   const picked_at = new Date().toISOString();
-  writeWinner({ name: winner.name, phone: winner.phone, picked_at });
+  await db.ref('winner').set({ name: winner.name, phone: winner.phone, picked_at });
   res.json({ name: winner.name, phone: winner.phone });
 });
 
 // Reset
-app.post('/api/admin/reset-leads', (req, res) => {
-  writeLeads([]);
-  writeWinner({});
+app.post('/api/admin/reset-leads', async (req, res) => {
+  await db.ref('leads').remove();
+  await db.ref('winner').remove();
   res.json({ success: true });
 });
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log('Lucky Draw (leads.json) server running on ' + port));
+app.listen(port, () => console.log('Lucky Draw server running with Firebase DB on ' + port));
