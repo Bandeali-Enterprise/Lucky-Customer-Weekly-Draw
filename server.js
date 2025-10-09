@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const admin = require('firebase-admin');
-const serviceAccount = require('./firebase-service-account.json'); // Secret key local hi rakho
+const serviceAccount = require('./firebase-service-account.json'); // File ko project folder me rakho
 
 const ADMINS = [
   { id: "Santosh", password: "Santosh@123" },
@@ -13,7 +13,7 @@ const ADMINS = [
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://<your-firebase-project-id>.firebaseio.com" // Apne Firebase console se real URL daalein
+  databaseURL: "https://bandealiluckydraw-default-rtdb.asia-southeast1.firebasedatabase.app"
 });
 
 const db = admin.database();
@@ -56,7 +56,6 @@ app.post('/api/admin/login', (req, res) => {
 app.get('/api/admin/leads', async (req, res) => {
   const snapshot = await db.ref('leads').once('value');
   const leadsObj = snapshot.val() || {};
-  // Object ko array me convert karo
   const leads = Object.values(leadsObj);
   res.json(leads);
 });
@@ -66,7 +65,6 @@ app.post('/api/admin/spin', async (req, res) => {
   const leadsSnapshot = await db.ref('leads').once('value');
   const leadsObj = leadsSnapshot.val();
   if (!leadsObj) return res.json({ error: 'No entries' });
-
   const leads = Object.values(leadsObj);
   const winner = leads[Math.floor(Math.random() * leads.length)];
   const picked_at = new Date().toISOString();
@@ -82,4 +80,4 @@ app.post('/api/admin/reset-leads', async (req, res) => {
 });
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log('Lucky Draw server running with Firebase DB on ' + port));
+app.listen(port, () => console.log('Lucky Draw (Firebase) server running on ' + port));
